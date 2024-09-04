@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from functools import cached_property
+from multiprocessing import connection
 from typing import List
 
 from .room import Room
@@ -11,7 +13,7 @@ class Anthill:
     rooms: list[Room]
     connections: list[Connection]
 
-    @property
+    @cached_property
     def connections_map(self) -> dict[Room, List[Room]]:
         connection_map = {}
         for connection in self.connections:
@@ -22,9 +24,19 @@ class Anthill:
             else:
                 connection_map[first_room].append(second_room)
 
-            if second_room not in connection_map:
-                connection_map[second_room] = [first_room]
-            else:
-                connection_map[second_room].append(first_room)
-
         return connection_map
+    
+    @property
+    def adjacency_matrix(self) -> List[List[int]]:
+        matrix = []
+        self.rooms.sort(key = lambda x: x.index)
+        for room in self.rooms:
+            sub_matrix = [0] * len(self.rooms)
+            for linked_room in self.connections_map[room]:
+                sub_matrix[linked_room.index] = 1
+            matrix.append(sub_matrix)
+        return matrix
+    
+
+    def ant_journey(self) -> None:
+        pass
