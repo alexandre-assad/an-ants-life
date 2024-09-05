@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 from functools import cached_property
-from typing import List
 
-from .room import Room
+from src.domain.room import Room
 
-Connection = tuple[Room, Room]
+type Connection = tuple[Room, Room]
 
 @dataclass
 class Anthill:
@@ -20,8 +19,8 @@ class Anthill:
         raise ValueError("No end room found")
 
     @cached_property
-    def connections_map(self) -> dict[Room, List[Room]]:
-        connection_map: dict[Room, List[Room]] = {}
+    def connections_map(self) -> dict[Room, list[Room]]:
+        connection_map: dict[Room, list[Room]] = {}
         for connection in self.connections:
             first_room, second_room = connection[0], connection[1]
             connection_map[first_room] = connection_map.get(first_room, [])
@@ -30,7 +29,7 @@ class Anthill:
         return connection_map
 
     @property
-    def adjacency_matrix(self) -> List[List[int]]:
+    def adjacency_matrix(self) -> list[list[int]]:
         matrix = []
         self.rooms.sort(key=lambda x: x.index)
         for room in self.rooms:
@@ -39,9 +38,3 @@ class Anthill:
                 sub_matrix[linked_room.index] = 1
             matrix.append(sub_matrix)
         return matrix
-
-    def _ford_fulkerson_algorythm(self) -> List[List[int]]:
-        pass 
-    
-    def ant_journey(self) -> None:
-        pass
