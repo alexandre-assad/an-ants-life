@@ -1,6 +1,9 @@
+from typing import Tuple
 import matplotlib.pyplot as plt
 from networkx import draw, spring_layout
 
+from src.domain.anthill import Anthill
+from src.domain.room import Room
 from src.domain.simulation import Simulation
 
 def visualize_movements(simulation: Simulation, number_of_ants: int) -> None:
