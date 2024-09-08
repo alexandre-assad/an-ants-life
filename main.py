@@ -49,6 +49,7 @@ class Ant:
             self.position = self.path.pop(0)
 
 class Simulation:
+
     def __init__(self, anthill: Anthill) -> None:
         self.anthill = anthill
         self.ants: dict[str, Ant] = {}
