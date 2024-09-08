@@ -2,8 +2,9 @@ import os
 import re
 from typing import List
 
-from ..domain.anthill import Anthill
-from domain.room import Room
+from src.domain.anthill import Anthill
+from src.domain.room import Room
+
 
 Connection = tuple[Room, Room]  # single key
 
@@ -13,7 +14,6 @@ def find_number_ants(file_content: str) -> int:
     regex_str = re.search(regex_exp, file_content)
     if not regex_str or not regex_str.group(1):
         raise ValueError()
-
     return int(regex_str.group(1))
 
 
