@@ -1,17 +1,14 @@
 from dataclasses import dataclass, field
 import matplotlib.pyplot as plt
 from networkx import Graph, draw, shortest_path, spring_layout
-from numpy import zeros
-from typing import Any, Tuple, Optional, TypeAlias
-
-from numpy.typing import NDArray
+import numpy as np
+from typing import Any, Tuple
 
 @dataclass
 class Room:
     name: str
     index: int
 
-RoomIndex: TypeAlias = int
 @dataclass
 class Anthill:
     graph: Graph = field(default_factory=Graph)
@@ -20,25 +17,24 @@ class Anthill:
     def add_room(self, room: Room) -> None:
         if room not in self.rooms:
             self.rooms.append(room)
+            self.graph.add_node(room.name)
     
     def add_tunnel(self, first_room: Room, second_room: Room) -> None:
-        self.graph.add_edge(first_room.name,second_room.name)
+        self.graph.add_edge(first_room.name, second_room.name)
     
-    @property
-    def matrix(self) -> NDArray:
+    def matrix(self) -> np.ndarray:
         size = len(self.rooms)
-        adj_matrix = zeros((size,size),dtype=int)
-        for f_room in self.rooms:
-            for s_room in self.rooms:
-                if self.graph.has_edge(f_room,s_room):
-                    adj_matrix[f_room.index,s_room.index] = 1
+        adj_matrix = np.zeros((size, size), dtype=int)
+        for i, f_room in enumerate(self.rooms):
+            for j, s_room in enumerate(self.rooms):
+                if self.graph.has_edge(f_room.name, s_room.name):
+                    adj_matrix[i, j] = 1
         return adj_matrix
 
     def display(self) -> None:
         pos = spring_layout(self.graph)
-        draw(self.graph, pos, with_labels= True, node_size=700, node_color="lightblue", font_size=15)
+        draw(self.graph, pos, with_labels=True, node_size=700, node_color="lightblue", font_size=15)
         plt.show()
-
 
 class Ant:
     def __init__(self, id: str, path: list[str]) -> None:
@@ -56,7 +52,7 @@ class Simulation:
         self.ants: dict[str, Ant] = {}
         self.steps: list[dict[str, Tuple[str, str]]] = []
     
-    def find_path(self, start: str, end: str) -> Any:
+    def find_path(self, start: str, end: str) -> list[str]:
         return shortest_path(self.anthill.graph, source=start, target=end)
     
     def load_ants(self, number_of_ants: int) -> None:
@@ -68,7 +64,7 @@ class Simulation:
         self.load_ants(number_of_ants)
         
         while any(ant.path for ant in self.ants.values()):
-            step: dict[str, tuple[str, str]] = {}
+            step: dict[str, Tuple[str, str]] = {}
             occupied_rooms: set = set()
             for ant_id, ant in self.ants.items():
                 if ant.path and ant.position != "Sd":
@@ -78,7 +74,7 @@ class Simulation:
                         step[ant_id] = (ant.position, next_position)
                         ant.move()
                         if ant.position == "Sd":
-                            ant.path = [] 
+                            ant.path = []
             self.steps.append(step)
 
     def display_movements(self) -> None:
@@ -88,14 +84,13 @@ class Simulation:
                 if destination:
                     print(f"{ant_id} - {position} - {destination}")
 
-
-def visualize_movements(simulation: Simulation) -> None:
+def visualize_movements(simulation: Simulation, number_of_ants: int) -> None:
     fig, ax = plt.subplots()
 
-    pos = spring_layout(simulation.anthill.graph)
+    pos = spring_layout(simulation.anthill.graph) 
     draw(simulation.anthill.graph, pos, with_labels=True, node_size=700, node_color="lightgreen", ax=ax)
     
-    simulation.simulate_movements(len(simulation.ants))
+    simulation.simulate_movements(number_of_ants)
     
     for index, step in enumerate(simulation.steps):
         ax.clear()
@@ -115,7 +110,6 @@ def visualize_movements(simulation: Simulation) -> None:
 
     plt.show()
 
-
 def load_anthill(file_path: str) -> Tuple[Anthill, int]:
     anthill = Anthill()
     number_of_ants = 0
@@ -132,11 +126,10 @@ def load_anthill(file_path: str) -> Tuple[Anthill, int]:
                 anthill.add_room(Room(line, len(anthill.rooms)))
     return anthill, number_of_ants
 
-
 def main() -> None:
-    anthill, number_of_ants = load_anthill("anthills/fourmiliere_cinq.txt")
+    anthill, number_of_ants = load_anthill("anthills/fourmiliere_trois.txt")
     simulation = Simulation(anthill)
-    visualize_movements(simulation)
+    visualize_movements(simulation, number_of_ants)
 
 if __name__ == "__main__":
     main()
