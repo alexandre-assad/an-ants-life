@@ -5,7 +5,6 @@ from typing import List
 from src.domain.anthill import Anthill
 from src.domain.room import Room
 
-
 Connection = tuple[Room, Room]  # single key
 
 
@@ -42,7 +41,7 @@ def infer_room_by_name(name: str, rooms: list[Room]) -> Room:
 
 
 def parse_anthill_from_file(file_path: str) -> Anthill:
-    file = open(os.path.join("..", "anthills", file_path), "r")
+    file = open(os.path.join("..", "anthills", file_path))
     file_content = file.read()
 
     rooms = []

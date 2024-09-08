@@ -1,8 +1,10 @@
 from dataclasses import dataclass, field
+from typing import Tuple
+
 import matplotlib.pyplot as plt
-from networkx import Graph, draw, shortest_path, spring_layout
 import numpy as np
-from typing import Any, Tuple
+from networkx import Graph, draw, shortest_path, spring_layout
+
 
 @dataclass
 class Room:
@@ -18,10 +20,10 @@ class Anthill:
         if room not in self.rooms:
             self.rooms.append(room)
             self.graph.add_node(room.name)
-    
+
     def add_tunnel(self, first_room: Room, second_room: Room) -> None:
         self.graph.add_edge(first_room.name, second_room.name)
-    
+
     def matrix(self) -> np.ndarray:
         size = len(self.rooms)
         adj_matrix = np.zeros((size, size), dtype=int)
@@ -41,7 +43,7 @@ class Ant:
         self.id = id
         self.path = path
         self.position: str | None = path[0] if path else None
-    
+
     def move(self) -> None:
         if self.path:
             self.position = self.path.pop(0)
@@ -51,18 +53,18 @@ class Simulation:
         self.anthill = anthill
         self.ants: dict[str, Ant] = {}
         self.steps: list[dict[str, Tuple[str, str]]] = []
-    
+
     def find_path(self, start: str, end: str) -> list[str]:
         return shortest_path(self.anthill.graph, source=start, target=end)
-    
+
     def load_ants(self, number_of_ants: int) -> None:
         path = self.find_path("Sv", "Sd")
         for i in range(number_of_ants):
             self.ants[f"Ant{i + 1}"] = Ant(f"Ant{i + 1}", path[:])
-    
+
     def simulate_movements(self, number_of_ants: int) -> None:
         self.load_ants(number_of_ants)
-        
+
         while any(ant.path for ant in self.ants.values()):
             step: dict[str, Tuple[str, str]] = {}
             occupied_rooms: set = set()
@@ -87,24 +89,24 @@ class Simulation:
 def visualize_movements(simulation: Simulation, number_of_ants: int) -> None:
     fig, ax = plt.subplots()
 
-    pos = spring_layout(simulation.anthill.graph) 
+    pos = spring_layout(simulation.anthill.graph)
     draw(simulation.anthill.graph, pos, with_labels=True, node_size=700, node_color="lightgreen", ax=ax)
-    
+
     simulation.simulate_movements(number_of_ants)
-    
+
     for index, step in enumerate(simulation.steps):
         ax.clear()
         draw(simulation.anthill.graph, pos, with_labels=True, node_size=700, node_color="lightgreen", ax=ax)
-        
+
         for ant_id, (start, end) in step.items():
             if start and end:
                 pos_start = pos[start]
                 pos_end = pos[end]
                 pos_mid = [(pos_start[0] + pos_end[0]) / 2, (pos_start[1] + pos_end[1]) / 2]
-                
+
                 ax.text(pos_mid[0], pos_mid[1], ant_id, fontsize=12, ha='center', va='center',
                         bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.5'))
-        
+
         plt.title(f"Step {index + 1}")
         plt.pause(1)
 
@@ -113,7 +115,7 @@ def visualize_movements(simulation: Simulation, number_of_ants: int) -> None:
 def load_anthill(file_path: str) -> Tuple[Anthill, int]:
     anthill = Anthill()
     number_of_ants = 0
-    with open(file_path, 'r') as file:
+    with open(file_path) as file:
         lines = file.readlines()
         for line in lines:
             line = line.strip()
