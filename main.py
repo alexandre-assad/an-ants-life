@@ -88,7 +88,7 @@ class Simulation:
                 if destination:  # Affiche seulement les déplacements valides
                     print(f"{id_fourmi} - {position} - {destination}")
 
-def visualiser_deplacements(simulation):
+def visualiser_deplacements(simulation, nombre_fourmis):
     fig, ax = plt.subplots()
 
     pos = nx.spring_layout(simulation.fourmiliere.graph)  # Obtenir la disposition des nœuds
@@ -135,6 +135,8 @@ def charger_fourmiliere(fichier_fourmiliere):
     return fourmiliere, nombre_fourmis
 
 def main() -> None:
-    fourmiliere, _ = charger_fourmiliere("data/fourmiliere_trois.txt")
+    fourmiliere, nombre_fourmis = charger_fourmiliere("anthills/fourmiliere_trois.txt")
     simulation = Simulation(fourmiliere)
-    visualiser_deplacements(simulation)
+    visualiser_deplacements(simulation, nombre_fourmis)
+
+main()
